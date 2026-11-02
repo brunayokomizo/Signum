@@ -1,0 +1,85 @@
+<resources>
+    <string name="app_name">Signum</string>
+    <string name="back">Volver</string>
+    <string name="clear">Limpiar</string>
+    <string name="logo_content_description">Logotipo Signum</string>
+    <string name="logo_icon_desc">Icono Signum</string>
+
+    <string name="email_label">Correo electrónico</string>
+    <string name="password_label">Contraseña</string>
+    <string name="login_button">Acceder a la Plataforma</string>
+    <string name="login_error_empty">Por favor, complete todos los campos</string>
+
+    <string name="admin_title">Panel de Control</string>
+    <string name="admin_new_doc">Nuevo Documento</string>
+    <string name="admin_register_signer">Registrar Nuevo Firmante</string>
+    <string name="admin_recent_docs">Documentos Recientes</string>
+    <string name="doc_contract">Contrato de Prestación de Servicios</string>
+    <string name="doc_nda">Acuerdo de Confidencialidad (NDA)</string>
+    <string name="status_pending">Pendiente</string>
+    <string name="status_completed">Completado</string>
+
+    <string name="register_signer_title">Registrar Firmante</string>
+    <string name="signer_data_section">Datos del Firmante</string>
+    <string name="full_name_label">Nombre Completo</string>
+    <string name="phone_label">Teléfono</string>
+    <string name="temp_password_label">Contraseña Provisional</string>
+    <string name="save_signer_button">Guardar Firmante</string>
+    <string name="signer_saved_success">¡Firmante registrado con éxito!</string>
+    <string name="fill_required_fields">Por favor, complete los campos obligatorios.</string>
+
+    <string name="signer_area_title">Área del Firmante</string>
+    <string name="greeting_client">¡Hola, Cliente!</string>
+    <string name="logout_action">Cerrar sesión</string>
+    <string name="pending_signatures_section">Firmas Pendientes</string>
+    <string name="tap_to_open_sign">Toque para abrir y firmar</string>
+    <string name="signed_documents_section">Documentos Firmados</string>
+    <string name="open_action">Abrir</string>
+    <string name="completed_action">Completado</string>
+
+    <string name="sign_document_title">Firmar Documento</string>
+    <string name="pdf_not_found">PDF no encontrado en el dispositivo.</string>
+    <string name="simulation_mode">Modo de simulación activado.</string>
+    <string name="draw_signature_label">Dibuje su firma:</string>
+    <string name="draw_signature_hint">Use su dedo para firmar aquí</string>
+    <string name="apply_signature_button">Aplicar Firma y Finalizar</string>
+    <string name="signature_required_toast">Por favor, dibuje su firma.</string>
+    <string name="signature_success_toast">¡Documento firmado con éxito!</string>
+
+    <string name="doc_setup_title">Configurar Documento</string>
+    <string name="contract_name_label">Nombre del Contrato</string>
+    <string name="no_file_selected">Ningún archivo seleccionado</string>
+    <string name="continue_to_signatures">Continuar a Firmas</string>
+
+    <string name="place_signature_title">Posicionar Firma</string>
+    <string name="place_signature_instruction">Arrastre el bloque a la zona de firma en el documento</string>
+    <string name="signature_block_title">Firma:</string>
+    <string name="signature_block_role">Contratante</string>
+    <string name="review_and_send_doc">Revisar y Enviar Documento</string>
+
+    <string name="review_final_title">Revisión Final</string>
+    <string name="review_shipping_summary">Resumen del Envío</string>
+    <string name="review_document_label">Documento:</string>
+    <string name="review_document_name">contrato_seleccionado.pdf</string>
+    <string name="review_signers_label">Firmante(s):</string>
+    <string name="review_signer_info">• Juan Silva (Contratante)</string>
+    <string name="review_invite_message">Mensaje de Invitación</string>
+    <string name="review_invite_text">Hola, adjunto el documento para su firma digital.</string>
+    <string name="review_send_button">Enviar para Firma</string>
+
+    <string name="tracking_title">Seguimiento</string>
+    <string name="tracking_contract_title">Contrato de Prestación</string>
+    <string name="tracking_general_status">Estado General:</string>
+    <string name="tracking_status_waiting">ESPERANDO FIRMAS</string>
+    <string name="tracking_timeline">Línea de Tiempo</string>
+    <string name="tracking_timeline_created">Hoy, 10:00 - Documento Creado</string>
+    <string name="tracking_timeline_sent">Hoy, 10:05 - Enviado a Juan Silva</string>
+    <string name="tracking_timeline_pending">Pendiente - Firma de Juan Silva</string>
+
+    <string name="timeline_step_created_title">Documento Generado</string>
+    <string name="timeline_step_created_desc">Hoy, 10:00</string>
+    <string name="timeline_step_sent_title">Documento Enviado</string>
+    <string name="timeline_step_sent_desc">Hoy, 10:05 - Enviado a Juan Silva</string>
+    <string name="timeline_step_pending_title">Esperando Firma</string>
+    <string name="timeline_step_pending_desc">Pendiente - Firma de Juan Silva</string>
+</resources>
