@@ -1,5 +1,6 @@
 package com.signum.app.data.repository
 
+import com.signum.app.data.local.CryptoUtils
 import com.signum.app.data.local.dao.UserDao
 import com.signum.app.data.local.entity.UserEntity
 import com.signum.app.domain.model.User
@@ -12,7 +13,8 @@ class UserRepositoryImpl(
     private val userDao: UserDao
 ) : UserRepository {
     override suspend fun authenticate(email: String, pass: String): User? {
-        val entity = userDao.getUserByEmail(email) ?: return null
+        val hashedPass = CryptoUtils.sha256(pass)
+        val entity = userDao.authenticateUser(email, hashedPass) ?: return null
         return User(
             id = entity.id,
             name = entity.fullName,

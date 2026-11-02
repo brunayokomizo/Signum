@@ -34,6 +34,7 @@ A aplicação segue os padrões recomendados pelo Google para desenvolvimento na
 * Interface Gráfica: Jetpack Compose com Material Design 3
 * Arquitetura: Clean Architecture (Domain, Data, Presentation) e MVVM
 * Persistência de Dados: Room Database com Kotlin Symbol Processing (KSP)
+* Criptografia e Segurança: Módulo criptográfico SHA-256 (`CryptoUtils`) para hashing seguro de credenciais e verificação de integridade documental
 * Navegação: Jetpack Navigation Compose
 * Injeção de Dependências: Contêiner de dependências manuais
 * Suporte Multilíngue (i18n): Suporte completo aos idiomas Português (PT), Inglês (EN) e Espanhol (ES)
