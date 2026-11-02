@@ -31,7 +31,12 @@ fun SignumNavGraph(
         composable("adminHome") {
             AdminHomeScreen(
                 onAddNewDocumentClick = { navController.navigate("documentSetup") },
-                onRegisterSignerClick = { navController.navigate("registerSigner") }
+                onRegisterSignerClick = { navController.navigate("registerSigner") },
+                onLogout = {
+                    navController.navigate("login") {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
             )
         }
 

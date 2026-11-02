@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -32,7 +33,8 @@ import com.signum.app.R
 @Composable
 fun AdminHomeScreen(
     onAddNewDocumentClick: () -> Unit,
-    onRegisterSignerClick: () -> Unit
+    onRegisterSignerClick: () -> Unit,
+    onLogout: () -> Unit = {}
 ) {
     val isDark = isSystemInDarkTheme()
 
@@ -64,6 +66,15 @@ fun AdminHomeScreen(
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(stringResource(id = R.string.admin_title), fontWeight = FontWeight.Bold)
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onLogout) {
+                        Icon(
+                            imageVector = Icons.Default.ExitToApp,
+                            contentDescription = stringResource(id = R.string.logout_action),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
