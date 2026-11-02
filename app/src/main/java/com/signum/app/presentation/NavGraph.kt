@@ -91,6 +91,9 @@ fun SignumNavGraph(
             SigningScreen(
                 onSignCompleted = {
                     navController.popBackStack()
+                },
+                onBackClick = {
+                    navController.popBackStack()
                 }
             )
         }

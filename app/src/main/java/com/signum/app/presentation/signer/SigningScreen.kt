@@ -10,6 +10,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Warning
@@ -39,7 +40,10 @@ import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SigningScreen(onSignCompleted: () -> Unit) {
+fun SigningScreen(
+    onSignCompleted: () -> Unit,
+    onBackClick: () -> Unit = {}
+) {
     val context = LocalContext.current
     val pdfFile = remember { File(context.filesDir, "contrato_prestacao_servicos.pdf") }
 
@@ -81,9 +85,18 @@ fun SigningScreen(onSignCompleted: () -> Unit) {
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(id = R.string.sign_document_title), fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = stringResource(id = R.string.back)
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.primary
+                    titleContentColor = MaterialTheme.colorScheme.primary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.primary
                 )
             )
         }
