@@ -8,7 +8,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Schedule
@@ -81,6 +80,7 @@ fun DocumentTrackingScreen(
                 color = headerTextColor
             )
 
+            // Status Card
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -106,6 +106,7 @@ fun DocumentTrackingScreen(
                 }
             }
 
+            // Timeline Header
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.History, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                 Spacer(modifier = Modifier.width(8.dp))
@@ -117,6 +118,7 @@ fun DocumentTrackingScreen(
                 )
             }
 
+            // Visual Timeline Section
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -127,6 +129,7 @@ fun DocumentTrackingScreen(
                     .padding(20.dp)
             ) {
                 Column {
+                    // Passo 1: Documento Gerado
                     TimelineStep(
                         title = stringResource(id = R.string.timeline_step_created_title),
                         description = stringResource(id = R.string.timeline_step_created_desc),
@@ -136,6 +139,7 @@ fun DocumentTrackingScreen(
                         showBottomLine = true
                     )
 
+                    // Passo 2: Documento Enviado
                     TimelineStep(
                         title = stringResource(id = R.string.timeline_step_sent_title),
                         description = stringResource(id = R.string.timeline_step_sent_desc),
@@ -145,6 +149,7 @@ fun DocumentTrackingScreen(
                         showBottomLine = true
                     )
 
+                    // Passo 3: Aguardando Assinatura
                     TimelineStep(
                         title = stringResource(id = R.string.timeline_step_pending_title),
                         description = stringResource(id = R.string.timeline_step_pending_desc),
