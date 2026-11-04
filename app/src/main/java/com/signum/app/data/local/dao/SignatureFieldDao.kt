@@ -13,4 +13,7 @@ interface SignatureFieldDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateSignatureField(field: SignatureFieldEntity): Long
+
+    @Query("DELETE FROM signature_fields WHERE id = :id")
+    suspend fun deleteSignatureField(id: String): Int
 }

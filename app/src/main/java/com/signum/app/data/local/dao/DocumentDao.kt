@@ -20,4 +20,7 @@ interface DocumentDao {
 
     @Query("UPDATE documents SET status = :status WHERE id = :documentId")
     suspend fun updateDocumentStatus(documentId: String, status: String): Int
+
+    @Query("DELETE FROM documents WHERE id = :id")
+    suspend fun deleteDocument(id: String): Int
 }

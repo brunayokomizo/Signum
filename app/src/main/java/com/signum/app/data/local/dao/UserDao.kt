@@ -9,6 +9,12 @@ interface UserDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUser(user: UserEntity): Long
 
+    @Update
+    suspend fun updateUser(user: UserEntity): Int
+
+    @Query("DELETE FROM users WHERE id = :id")
+    suspend fun deleteUser(id: String): Int
+
     @Query("SELECT * FROM users WHERE role = 'SIGNER'")
     fun getAllSigners(): Flow<List<UserEntity>>
 

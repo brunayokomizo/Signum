@@ -53,6 +53,10 @@ class DocumentRepositoryImpl(
 
     override suspend fun updateSignatureField(field: SignatureField) {
         signatureFieldDao.updateSignatureField(field.toEntity())
+        val allFields = signatureFieldDao.getFieldsForDocument(field.documentId)
+        if (allFields.isNotEmpty() && allFields.all { it.isSigned }) {
+            documentDao.updateDocumentStatus(field.documentId, DocumentStatus.SIGNED.name)
+        }
     }
 
     override suspend fun updateDocumentStatus(documentId: String, status: String) {
@@ -82,23 +86,27 @@ class DocumentRepositoryImpl(
         id = id,
         documentId = documentId,
         signerUserId = signerId,
+        role = role,
         pageNumber = pageNumber,
         xPosition = positionX,
         yPosition = positionY,
-        width = 0f,
-        height = 0f,
+        width = width,
+        height = height,
         isSigned = isSigned,
-        signaturePath = null
+        signaturePath = signaturePath
     )
 
     private fun SignatureField.toEntity() = SignatureFieldEntity(
         id = id,
         documentId = documentId,
         signerId = signerUserId,
-        role = "SIGNER",
+        role = role,
         pageNumber = pageNumber,
         positionX = xPosition,
         positionY = yPosition,
-        isSigned = isSigned
+        width = width,
+        height = height,
+        isSigned = isSigned,
+        signaturePath = signaturePath
     )
 }

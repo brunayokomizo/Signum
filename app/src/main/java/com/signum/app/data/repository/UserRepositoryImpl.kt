@@ -58,4 +58,18 @@ class UserRepositoryImpl(
             )
         )
     }
+
+    override suspend fun updateUser(user: User) {
+        val existing = userDao.getUserById(user.id)
+        userDao.updateUser(
+            UserEntity(
+                id = user.id,
+                fullName = user.name,
+                email = user.email,
+                phone = existing?.phone ?: "",
+                passwordHash = existing?.passwordHash ?: "",
+                role = user.role.name
+            )
+        )
+    }
 }

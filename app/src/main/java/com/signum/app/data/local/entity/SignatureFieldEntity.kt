@@ -12,5 +12,8 @@ data class SignatureFieldEntity(
     val pageNumber: Int,
     val positionX: Float,
     val positionY: Float,
-    val isSigned: Boolean = false
+    val width: Float = 0.2f,
+    val height: Float = 0.08f,
+    val isSigned: Boolean = false,
+    val signaturePath: String? = null
 )
