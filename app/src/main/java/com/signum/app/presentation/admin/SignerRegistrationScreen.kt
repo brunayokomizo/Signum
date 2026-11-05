@@ -11,7 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
@@ -39,7 +39,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignerRegistrationScreen(
-    onSaveClick: () -> Unit
+    onSaveClick: () -> Unit,
+    onSaveSigner: (name: String, email: String, phone: String, pass: String) -> Unit = { _, _, _, _ -> }
 ) {
     val context = LocalContext.current
     val isDark = isSystemInDarkTheme()
@@ -81,7 +82,7 @@ fun SignerRegistrationScreen(
                 title = { Text(stringResource(id = R.string.register_signer_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onSaveClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(id = R.string.back))
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(id = R.string.back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -211,7 +212,8 @@ fun SignerRegistrationScreen(
                             }
                             isLoading = true
                             scope.launch {
-                                delay(1200)
+                                onSaveSigner(name, email, phone, password)
+                                delay(600)
                                 isLoading = false
                                 Toast.makeText(context, signerSavedMsg, Toast.LENGTH_SHORT).show()
                                 onSaveClick()

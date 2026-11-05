@@ -7,10 +7,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material3.*
@@ -28,12 +30,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.signum.app.R
+import com.signum.app.data.local.entity.DocumentEntity
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminHomeScreen(
+    recentDocuments: List<DocumentEntity> = emptyList(),
     onAddNewDocumentClick: () -> Unit,
     onRegisterSignerClick: () -> Unit,
+    onDocumentClick: (docId: String, title: String) -> Unit = { _, _ -> },
+    onDeleteDocumentClick: (documentId: String) -> Unit = {},
     onLogout: () -> Unit = {}
 ) {
     val isDark = isSystemInDarkTheme()
@@ -52,6 +61,8 @@ fun AdminHomeScreen(
 
     val cardBorderColor = if (isDark) Color(0xFF2A3C52) else Color(0xFFD8E5F2)
     val headerTextColor = if (isDark) Color.White else Color(0xFF0A192F)
+
+    val dateFormat = SimpleDateFormat("dd/MM/yyyy 'às' HH:mm", Locale.getDefault())
 
     Scaffold(
         topBar = {
@@ -171,38 +182,85 @@ fun AdminHomeScreen(
                 modifier = Modifier.padding(bottom = 12.dp)
             )
 
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(2) { index ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .shadow(elevation = 6.dp, shape = RoundedCornerShape(14.dp))
-                            .clip(RoundedCornerShape(14.dp))
-                            .background(brush = cardGradient)
-                            .border(width = 1.dp, color = cardBorderColor, shape = RoundedCornerShape(14.dp))
-                            .padding(16.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                Icons.Default.Description,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(36.dp)
-                            )
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Column {
-                                Text(
-                                    text = if (index == 0) stringResource(id = R.string.doc_contract) else stringResource(id = R.string.doc_nda),
-                                    fontWeight = FontWeight.Bold,
-                                    color = headerTextColor
-                                )
-                                Text(
-                                    text = if (index == 0) stringResource(id = R.string.status_pending) else stringResource(id = R.string.status_completed),
-                                    color = if (index == 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-                                    fontWeight = FontWeight.Medium
-                                )
+            if (recentDocuments.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .shadow(elevation = 6.dp, shape = RoundedCornerShape(14.dp))
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(brush = cardGradient)
+                        .border(width = 1.dp, color = cardBorderColor, shape = RoundedCornerShape(14.dp))
+                        .padding(20.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Nenhum documento cadastrado ainda.",
+                        color = headerTextColor.copy(alpha = 0.7f),
+                        fontSize = 14.sp
+                    )
+                }
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(recentDocuments) { doc ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .shadow(elevation = 6.dp, shape = RoundedCornerShape(14.dp))
+                                .clip(RoundedCornerShape(14.dp))
+                                .background(brush = cardGradient)
+                                .border(width = 1.dp, color = cardBorderColor, shape = RoundedCornerShape(14.dp))
+                                .clickable { onDocumentClick(doc.id, doc.title) }
+                                .padding(16.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Icon(
+                                        Icons.Default.Description,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(36.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(14.dp))
+                                    Column {
+                                        Text(
+                                            text = doc.title,
+                                            fontWeight = FontWeight.Bold,
+                                            color = headerTextColor
+                                        )
+                                        Spacer(modifier = Modifier.height(2.dp))
+                                        Text(
+                                            text = if (doc.status == "COMPLETED" || doc.status == "SIGNED") "Status: Concluído" else "Status: Pendente de Assinatura",
+                                            color = if (doc.status == "COMPLETED" || doc.status == "SIGNED") Color(0xFF2E7D32) else MaterialTheme.colorScheme.error,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 12.sp
+                                        )
+                                        Text(
+                                            text = "Criado em: ${dateFormat.format(Date(doc.createdAt))}",
+                                            color = headerTextColor.copy(alpha = 0.6f),
+                                            fontSize = 11.sp
+                                        )
+                                    }
+                                }
+
+                                IconButton(
+                                    onClick = { onDeleteDocumentClick(doc.id) },
+                                    modifier = Modifier.size(32.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Excluir Documento",
+                                        tint = MaterialTheme.colorScheme.error
+                                    )
+                                }
                             }
                         }
                     }

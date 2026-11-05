@@ -50,12 +50,20 @@
     <string name="contract_name_label">Contract Name</string>
     <string name="no_file_selected">No file selected</string>
     <string name="continue_to_signatures">Continue to Signatures</string>
+    <string name="select_signers_label">Select and Classify Signers</string>
+    <string name="role_contractor">Contractor</string>
+    <string name="role_contractee">Contractee</string>
+    <string name="role_witness">Witness</string>
+    <string name="add_signer_button">+ Add Signer</string>
+    <string name="pdf_preview_title">PDF Preview</string>
 
     <string name="place_signature_title">Position Signature</string>
     <string name="place_signature_instruction">Drag the block to the signature area on the document</string>
     <string name="signature_block_title">Signature:</string>
     <string name="signature_block_role">Client / Signer</string>
     <string name="review_and_send_doc">Review &amp; Send Document</string>
+    <string name="page_indicator">Page 1 of 1</string>
+    <string name="add_signature_field">+ Add Signature</string>
 
     <string name="review_final_title">Final Review</string>
     <string name="review_shipping_summary">Submission Summary</string>

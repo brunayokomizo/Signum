@@ -50,12 +50,20 @@
     <string name="contract_name_label">Nombre del Contrato</string>
     <string name="no_file_selected">Ningún archivo seleccionado</string>
     <string name="continue_to_signatures">Continuar a Firmas</string>
+    <string name="select_signers_label">Seleccionar y Clasificar Firmantes</string>
+    <string name="role_contractor">Contratante</string>
+    <string name="role_contractee">Contratado</string>
+    <string name="role_witness">Testigo</string>
+    <string name="add_signer_button">+ Añadir Firmante</string>
+    <string name="pdf_preview_title">Vista Previa del PDF</string>
 
     <string name="place_signature_title">Posicionar Firma</string>
     <string name="place_signature_instruction">Arrastre el bloque a la zona de firma en el documento</string>
     <string name="signature_block_title">Firma:</string>
     <string name="signature_block_role">Contratante</string>
     <string name="review_and_send_doc">Revisar y Enviar Documento</string>
+    <string name="page_indicator">Página 1 de 1</string>
+    <string name="add_signature_field">+ Añadir Firma</string>
 
     <string name="review_final_title">Revisión Final</string>
     <string name="review_shipping_summary">Resumen del Envío</string>

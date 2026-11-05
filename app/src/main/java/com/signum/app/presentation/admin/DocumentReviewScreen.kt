@@ -1,36 +1,55 @@
 package com.signum.app.presentation.admin
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
+import androidx.compose.material.icons.filled.EditNote
+import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.signum.app.R
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DocumentReviewScreen(
-    onConfirmAndSend: () -> Unit,
+    contractName: String = "Contrato de Prestação de Serviços",
+    signersInfo: String = "• João Silva (Contratante)",
+    signaturePagesInfo: String = "• 2 campos de assinatura na Página 1",
+    onConfirmAndSend: (inviteMessage: String) -> Unit,
     onBackClick: () -> Unit = {}
 ) {
     val isDark = isSystemInDarkTheme()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    var inviteMessage by remember {
+        mutableStateOf("Olá! Segue o documento oficial para a coleta da sua assinatura digital na plataforma Signum.")
+    }
+    var isLoading by remember { mutableStateOf(false) }
 
     val backgroundGradient = if (isDark) {
         Brush.verticalGradient(listOf(Color(0xFF0A121E), Color(0xFF131D2A)))
@@ -59,7 +78,7 @@ fun DocumentReviewScreen(
                 title = { Text(stringResource(id = R.string.review_final_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(id = R.string.back))
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(id = R.string.back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -78,7 +97,12 @@ fun DocumentReviewScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
                 Text(
                     text = stringResource(id = R.string.review_shipping_summary),
                     fontSize = 18.sp,
@@ -86,6 +110,7 @@ fun DocumentReviewScreen(
                     color = headerTextColor
                 )
 
+                // Resumo do Documento e Signatários
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -93,35 +118,53 @@ fun DocumentReviewScreen(
                         .clip(RoundedCornerShape(16.dp))
                         .background(brush = cardGradient)
                         .border(width = 1.dp, color = cardBorderColor, shape = RoundedCornerShape(16.dp))
-                        .padding(16.dp)
+                        .padding(18.dp)
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        // Documento Final
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.CheckCircle, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                            Icon(Icons.AutoMirrored.Filled.InsertDriveFile, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(text = stringResource(id = R.string.review_document_label), fontWeight = FontWeight.Bold, color = mainTextColor)
                         }
                         Text(
-                            text = stringResource(id = R.string.review_document_name),
-                            color = mainTextColor.copy(alpha = 0.8f),
+                            text = contractName,
+                            color = mainTextColor.copy(alpha = 0.85f),
+                            fontWeight = FontWeight.Medium,
                             modifier = Modifier.padding(start = 28.dp)
                         )
 
-                        Spacer(modifier = Modifier.height(4.dp))
+                        HorizontalDivider(color = cardBorderColor.copy(alpha = 0.5f))
 
+                        // Lista de Signatários
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.CheckCircle, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                            Icon(Icons.Default.People, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(text = stringResource(id = R.string.review_signers_label), fontWeight = FontWeight.Bold, color = mainTextColor)
                         }
                         Text(
-                            text = stringResource(id = R.string.review_signer_info),
-                            color = mainTextColor.copy(alpha = 0.8f),
+                            text = signersInfo,
+                            color = mainTextColor.copy(alpha = 0.85f),
+                            modifier = Modifier.padding(start = 28.dp)
+                        )
+
+                        HorizontalDivider(color = cardBorderColor.copy(alpha = 0.5f))
+
+                        // Campos e Páginas de Assinatura
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.TouchApp, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(text = "Campos e Páginas de Assinatura:", fontWeight = FontWeight.Bold, color = mainTextColor)
+                        }
+                        Text(
+                            text = signaturePagesInfo,
+                            color = mainTextColor.copy(alpha = 0.85f),
                             modifier = Modifier.padding(start = 28.dp)
                         )
                     }
                 }
 
+                // Mensagem Editável do Convite
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -132,21 +175,31 @@ fun DocumentReviewScreen(
                         .padding(16.dp)
                 ) {
                     Column {
-                        Text(
-                            text = stringResource(id = R.string.review_invite_message),
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.EditNote, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = stringResource(id = R.string.review_invite_message) + " (Editável)",
+                                fontSize = 13.sp,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = stringResource(id = R.string.review_invite_text),
-                            color = mainTextColor,
-                            fontSize = 14.sp
+
+                        OutlinedTextField(
+                            value = inviteMessage,
+                            onValueChange = { inviteMessage = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            maxLines = 4
                         )
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             Box(
                 modifier = Modifier
@@ -155,18 +208,30 @@ fun DocumentReviewScreen(
                     .shadow(elevation = 10.dp, shape = RoundedCornerShape(16.dp))
                     .clip(RoundedCornerShape(16.dp))
                     .background(brush = Brush.horizontalGradient(colors = btnGradient))
-                    .clickable { onConfirmAndSend() },
+                    .clickable(enabled = !isLoading) {
+                        isLoading = true
+                        scope.launch {
+                            delay(1000)
+                            isLoading = false
+                            Toast.makeText(context, "Convite registrado e enviado com sucesso!", Toast.LENGTH_SHORT).show()
+                            onConfirmAndSend(inviteMessage)
+                        }
+                    },
                 contentAlignment = Alignment.Center
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Send, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(id = R.string.review_send_button),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        color = Color.White
-                    )
+                if (isLoading) {
+                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                } else {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Send, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(id = R.string.review_send_button),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            color = Color.White
+                        )
+                    }
                 }
             }
         }

@@ -1,37 +1,96 @@
 package com.signum.app.presentation.admin
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.HourglassTop
+import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.signum.app.R
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
+data class SignerStatusUI(
+    val name: String,
+    val role: String,
+    val isSigned: Boolean,
+    val signedAtDate: String? = null
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DocumentTrackingScreen(
+    documentTitle: String = "Contrato de Prestação de Serviços",
+    signersList: List<SignerAssignmentUI> = emptyList(),
+    signedSignerNames: List<String> = emptyList(),
+    isClientSigned: Boolean = false,
     onBackToHome: () -> Unit
 ) {
     val isDark = isSystemInDarkTheme()
+    val context = LocalContext.current
+
+    val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy 'às' HH:mm", Locale.getDefault()) }
+    val currentTimeStr = remember { dateFormat.format(Date()) }
+
+    val activeSigners = remember(signersList, isClientSigned, signedSignerNames) {
+        if (signersList.isNotEmpty()) {
+            signersList.map { item ->
+                // Matches specifically against signedSignerNames list without hardcoded fallback index
+                val signed = signedSignerNames.any { signedName ->
+                    item.name.contains(signedName, ignoreCase = true) || signedName.contains(item.name, ignoreCase = true)
+                }
+                SignerStatusUI(
+                    name = item.name,
+                    role = item.role,
+                    isSigned = signed,
+                    signedAtDate = if (signed) currentTimeStr else null
+                )
+            }
+        } else {
+            listOf(
+                SignerStatusUI(
+                    name = "Ana Aparecida Lisboa",
+                    role = "Contratante",
+                    isSigned = signedSignerNames.any { it.contains("Ana", ignoreCase = true) },
+                    signedAtDate = if (signedSignerNames.any { it.contains("Ana", ignoreCase = true) }) currentTimeStr else null
+                )
+            )
+        }
+    }
+
+    // Business Rule: Document is ONLY completed when 100% of required signers have finished signing!
+    val isCompleted = activeSigners.isNotEmpty() && activeSigners.all { it.isSigned }
+    val generalStatusText = when {
+        isCompleted -> "CONCLUÍDO / ASSINADO"
+        activeSigners.any { it.isSigned } -> "PARCIALMENTE ASSINADO"
+        else -> "A AGUARDAR ASSINATURAS"
+    }
 
     val backgroundGradient = if (isDark) {
         Brush.verticalGradient(listOf(Color(0xFF0A121E), Color(0xFF131D2A)))
@@ -48,6 +107,12 @@ fun DocumentTrackingScreen(
     val headerTextColor = if (isDark) Color.White else Color(0xFF0A192F)
     val mainTextColor = if (isDark) Color.White else Color(0xFF0A192F)
     val subTextColor = if (isDark) Color(0xFFB0BEC5) else Color(0xFF5E6C84)
+
+    val btnGradient = if (isDark) {
+        listOf(Color(0xFF0088CC), Color(0xFF005580))
+    } else {
+        listOf(Color(0xFF0052CC), Color(0xFF007AFF))
+    }
 
     Scaffold(
         topBar = {
@@ -71,16 +136,18 @@ fun DocumentTrackingScreen(
                 .padding(paddingValues)
                 .fillMaxSize()
                 .background(brush = backgroundGradient)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = stringResource(id = R.string.tracking_contract_title),
+                text = documentTitle,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = headerTextColor
             )
 
+            // 1. Situação Geral do Documento
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -94,23 +161,25 @@ fun DocumentTrackingScreen(
                     Text(
                         text = stringResource(id = R.string.tracking_general_status),
                         fontWeight = FontWeight.Bold,
-                        color = mainTextColor
+                        color = subTextColor,
+                        fontSize = 13.sp
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = stringResource(id = R.string.tracking_status_waiting),
-                        color = MaterialTheme.colorScheme.error,
+                        text = generalStatusText,
+                        color = if (isCompleted) Color(0xFF2E7D32) else if (activeSigners.any { it.isSigned }) Color(0xFFF57C00) else Color(0xFFD32F2F),
                         fontWeight = FontWeight.ExtraBold,
-                        fontSize = 15.sp
+                        fontSize = 16.sp
                     )
                 }
             }
 
+            // 2. Situação Individual dos Signatários
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.History, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                Icon(Icons.Default.People, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = stringResource(id = R.string.tracking_timeline),
+                    text = "Status Individual dos Signatários",
                     fontWeight = FontWeight.Bold,
                     color = headerTextColor,
                     fontSize = 16.sp
@@ -124,12 +193,72 @@ fun DocumentTrackingScreen(
                     .clip(RoundedCornerShape(16.dp))
                     .background(brush = cardGradient)
                     .border(width = 1.dp, color = cardBorderColor, shape = RoundedCornerShape(16.dp))
+                    .padding(16.dp)
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    activeSigners.forEach { signer ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = if (signer.isSigned) Icons.Default.CheckCircle else Icons.Default.HourglassTop,
+                                    contentDescription = null,
+                                    tint = if (signer.isSigned) Color(0xFF2E7D32) else Color(0xFFF57C00),
+                                    modifier = Modifier.size(22.dp)
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Column {
+                                    Text(
+                                        text = "${signer.name} (${signer.role})",
+                                        fontWeight = FontWeight.Bold,
+                                        color = mainTextColor,
+                                        fontSize = 14.sp
+                                    )
+                                    Text(
+                                        text = if (signer.isSigned) "Assinado em ${signer.signedAtDate}" else "Aguardando assinatura",
+                                        color = if (signer.isSigned) Color(0xFF2E7D32) else subTextColor,
+                                        fontSize = 12.sp,
+                                        fontWeight = if (signer.isSigned) FontWeight.Bold else FontWeight.Normal
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 3. Histórico e Linha do Tempo
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.History, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(id = R.string.tracking_timeline),
+                    fontWeight = FontWeight.Bold,
+                    color = headerTextColor,
+                    fontSize = 16.sp
+                )
+            }
+
+            val signersNamesText = activeSigners.joinToString(" e ") { it.name }
+            val signedSigners = activeSigners.filter { it.isSigned }
+            val pendingSigners = activeSigners.filter { !it.isSigned }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(elevation = 6.dp, shape = RoundedCornerShape(16.dp))
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(brush = cardGradient)
+                    .border(width = 1.dp, color = cardBorderColor, shape = RoundedCornerShape(16.dp))
                     .padding(20.dp)
             ) {
                 Column {
                     TimelineStep(
-                        title = stringResource(id = R.string.timeline_step_created_title),
-                        description = stringResource(id = R.string.timeline_step_created_desc),
+                        title = "Documento Criado",
+                        description = "$currentTimeStr - Por Administrador",
                         status = TimelineStepStatus.COMPLETED,
                         mainTextColor = mainTextColor,
                         subTextColor = subTextColor,
@@ -137,22 +266,62 @@ fun DocumentTrackingScreen(
                     )
 
                     TimelineStep(
-                        title = stringResource(id = R.string.timeline_step_sent_title),
-                        description = stringResource(id = R.string.timeline_step_sent_desc),
+                        title = "Convites Enviados",
+                        description = "$currentTimeStr - Enviado para $signersNamesText",
                         status = TimelineStepStatus.COMPLETED,
                         mainTextColor = mainTextColor,
                         subTextColor = subTextColor,
-                        showBottomLine = true
+                        showBottomLine = signedSigners.isNotEmpty() || pendingSigners.isNotEmpty()
                     )
 
-                    TimelineStep(
-                        title = stringResource(id = R.string.timeline_step_pending_title),
-                        description = stringResource(id = R.string.timeline_step_pending_desc),
-                        status = TimelineStepStatus.IN_PROGRESS,
-                        mainTextColor = mainTextColor,
-                        subTextColor = subTextColor,
-                        showBottomLine = false
-                    )
+                    signedSigners.forEachIndexed { index, signer ->
+                        TimelineStep(
+                            title = "Assinatura de ${signer.name}",
+                            description = "${signer.signedAtDate} - Concluído com sucesso",
+                            status = TimelineStepStatus.COMPLETED,
+                            mainTextColor = mainTextColor,
+                            subTextColor = subTextColor,
+                            showBottomLine = pendingSigners.isNotEmpty() || index < signedSigners.size - 1
+                        )
+                    }
+
+                    if (pendingSigners.isNotEmpty()) {
+                        TimelineStep(
+                            title = "Aguardando Assinatura(s)",
+                            description = "Pendente - ${pendingSigners.joinToString(", ") { it.name }}",
+                            status = TimelineStepStatus.IN_PROGRESS,
+                            mainTextColor = mainTextColor,
+                            subTextColor = subTextColor,
+                            showBottomLine = false
+                        )
+                    }
+                }
+            }
+
+            // 4. Documento Final Concluído (Disponível quando 100% dos signatários finalizarem)
+            if (isCompleted) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .shadow(elevation = 10.dp, shape = RoundedCornerShape(16.dp))
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(brush = Brush.horizontalGradient(colors = btnGradient))
+                        .clickable {
+                            Toast.makeText(context, "Abrindo Documento Final Concluído...", Toast.LENGTH_SHORT).show()
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.PictureAsPdf, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Abrir Documento Final Concluído",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp,
+                            color = Color.White
+                        )
+                    }
                 }
             }
         }

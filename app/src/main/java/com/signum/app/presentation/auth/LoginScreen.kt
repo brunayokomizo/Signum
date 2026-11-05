@@ -27,16 +27,16 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.signum.app.R
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(onLoginSuccess: (isAdmin: Boolean) -> Unit) {
+fun LoginScreen(
+    onLoginClick: (email: String, pass: String, onError: (String) -> Unit) -> Unit
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
-    val scope = rememberCoroutineScope()
     val isDark = isSystemInDarkTheme()
 
     val backgroundGradient = if (isDark) {
@@ -159,10 +159,9 @@ fun LoginScreen(onLoginSuccess: (isAdmin: Boolean) -> Unit) {
                             }
                             errorMessage = ""
                             isLoading = true
-                            scope.launch {
-                                delay(1500)
+                            onLoginClick(email, password) { err ->
                                 isLoading = false
-                                onLoginSuccess(email.contains("admin", ignoreCase = true))
+                                errorMessage = err
                             }
                         },
                     contentAlignment = Alignment.Center

@@ -1,5 +1,8 @@
 package com.signum.app.presentation.signer
 
+import android.graphics.Bitmap
+import android.graphics.pdf.PdfRenderer
+import android.os.ParcelFileDescriptor
 import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -10,7 +13,9 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.NavigateBefore
+import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Warning
@@ -42,11 +47,29 @@ import java.io.File
 @Composable
 fun SigningScreen(
     onSignCompleted: () -> Unit,
+    onSaveSignature: (Bitmap?) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
-    val pdfFile = remember { File(context.filesDir, "contrato_prestacao_servicos.pdf") }
+    val pdfFile = remember {
+        File(context.filesDir, "active_document.pdf").takeIf { it.exists() }
+            ?: File(context.filesDir, "contrato_prestacao_servicos.pdf")
+    }
 
+    val totalPages = remember(pdfFile) {
+        try {
+            val pfd = ParcelFileDescriptor.open(pdfFile, ParcelFileDescriptor.MODE_READ_ONLY)
+            val renderer = PdfRenderer(pfd)
+            val count = renderer.pageCount
+            renderer.close()
+            pfd.close()
+            count.coerceAtLeast(1)
+        } catch (e: Exception) {
+            1
+        }
+    }
+
+    var currentPage by remember { mutableIntStateOf(1) }
     var isLoading by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val isDark = isSystemInDarkTheme()
@@ -88,7 +111,7 @@ fun SigningScreen(
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
-                            Icons.Default.ArrowBack,
+                            Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(id = R.string.back)
                         )
                     }
@@ -110,6 +133,7 @@ fun SigningScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
+            // PDF Viewer Box with Multi-Page Controls
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -121,7 +145,54 @@ fun SigningScreen(
                 contentAlignment = Alignment.Center
             ) {
                 if (pdfFile.exists()) {
-                    PdfViewer(pdfFile = pdfFile, modifier = Modifier.fillMaxSize())
+                    PdfViewer(
+                        pdfFile = pdfFile,
+                        pageIndex = (currentPage - 1).coerceAtLeast(0),
+                        modifier = Modifier.fillMaxSize()
+                    )
+
+                    // Navigation Overlay Header
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .padding(top = 10.dp)
+                            .shadow(elevation = 4.dp, shape = RoundedCornerShape(20.dp))
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f))
+                            .padding(horizontal = 12.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(
+                            onClick = { if (currentPage > 1) currentPage-- },
+                            modifier = Modifier.size(24.dp),
+                            enabled = currentPage > 1
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.NavigateBefore,
+                                contentDescription = null,
+                                tint = if (currentPage > 1) MaterialTheme.colorScheme.primary else Color.Gray
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Página $currentPage de $totalPages",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        IconButton(
+                            onClick = { if (currentPage < totalPages) currentPage++ },
+                            modifier = Modifier.size(24.dp),
+                            enabled = currentPage < totalPages
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.NavigateNext,
+                                contentDescription = null,
+                                tint = if (currentPage < totalPages) MaterialTheme.colorScheme.primary else Color.Gray
+                            )
+                        }
+                    }
                 } else {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(
@@ -137,7 +208,7 @@ fun SigningScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -216,7 +287,7 @@ fun SigningScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Box(
                 modifier = Modifier
@@ -232,7 +303,8 @@ fun SigningScreen(
                         }
                         isLoading = true
                         scope.launch {
-                            delay(1500)
+                            onSaveSignature(null)
+                            delay(600)
                             isLoading = false
                             Toast.makeText(context, sigSuccessMsg, Toast.LENGTH_SHORT).show()
                             onSignCompleted()

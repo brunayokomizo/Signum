@@ -14,7 +14,7 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.TaskAlt
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,17 +26,52 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.signum.app.R
+import com.signum.app.data.local.entity.DocumentEntity
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignerHomeScreen(
+    documentsList: List<DocumentEntity> = emptyList(),
+    isSignedState: Boolean = false,
+    signerName: String = "Ana Aparecida Lisboa",
     onOpenDocumentToSign: (documentId: String) -> Unit,
     onLogout: () -> Unit = {}
 ) {
-    val pendingDocuments = listOf("Contrato_Prestacao_Servicos.pdf")
-    val completedDocuments = listOf("Termo_de_Confidencialidade.pdf", "Autorizacao_Uso_Imagem.pdf")
-
     val isDark = isSystemInDarkTheme()
+
+    var isLocalSigned by remember { mutableStateOf(false) }
+    val isSigned = isSignedState || isLocalSigned
+
+    val pendingDocs = remember(documentsList, isSigned) {
+        if (documentsList.isNotEmpty()) {
+            val list = documentsList.filter { it.status != "SIGNED" && it.status != "COMPLETED" }.map { it.title }
+            if (isSigned) list.filter { !it.contains("Pitch Deck", ignoreCase = true) } else list
+        } else if (!isSigned) {
+            listOf("Signum Pitch Deck")
+        } else {
+            emptyList()
+        }
+    }
+
+    val completedDocs = remember(documentsList, isSigned) {
+        if (documentsList.isNotEmpty()) {
+            val list = documentsList.filter { it.status == "SIGNED" || it.status == "COMPLETED" }.map { it.title }.toMutableList()
+            if (isSigned && list.none { it.contains("Pitch Deck", ignoreCase = true) }) {
+                list.add(0, "Signum Pitch Deck (Assinado)")
+            }
+            if (list.isEmpty()) {
+                listOf("Termo_de_Confidencialidade.pdf", "Autorizacao_Uso_Imagem.pdf")
+            } else list
+        } else if (isSigned) {
+            listOf(
+                "Signum Pitch Deck (Assinado)",
+                "Termo_de_Confidencialidade.pdf",
+                "Autorizacao_Uso_Imagem.pdf"
+            )
+        } else {
+            listOf("Termo_de_Confidencialidade.pdf", "Autorizacao_Uso_Imagem.pdf")
+        }
+    }
 
     val backgroundGradient = if (isDark) {
         Brush.verticalGradient(listOf(Color(0xFF0A121E), Color(0xFF131D2A)))
@@ -61,7 +96,7 @@ fun SignerHomeScreen(
                 title = {
                     Column {
                         Text(stringResource(id = R.string.signer_area_title), fontWeight = FontWeight.Bold)
-                        Text(stringResource(id = R.string.greeting_client), style = MaterialTheme.typography.bodySmall)
+                        Text("Olá, $signerName!", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold)
                     }
                 },
                 actions = {
@@ -84,6 +119,7 @@ fun SignerHomeScreen(
                 .padding(16.dp)
         ) {
 
+            // 1. Visualizar Documentos Pendentes de Assinatura
             Text(
                 text = stringResource(id = R.string.pending_signatures_section),
                 fontSize = 18.sp,
@@ -92,50 +128,71 @@ fun SignerHomeScreen(
                 modifier = Modifier.padding(bottom = 12.dp)
             )
 
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.weight(1f, fill = false)
-            ) {
-                items(pendingDocuments) { doc ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .shadow(elevation = 8.dp, shape = RoundedCornerShape(16.dp))
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(brush = cardGradient)
-                            .border(width = 1.dp, color = cardBorderColor, shape = RoundedCornerShape(16.dp))
-                            .clickable { onOpenDocumentToSign("doc_123") }
-                            .padding(16.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.PictureAsPdf,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(40.dp)
-                            )
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(text = doc, fontWeight = FontWeight.Bold, color = mainTextColor)
-                                Text(
-                                    text = stringResource(id = R.string.tap_to_open_sign),
-                                    color = MaterialTheme.colorScheme.primary,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontWeight = FontWeight.SemiBold
+            if (pendingDocs.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp)
+                        .background(cardBorderColor.copy(alpha = 0.2f), RoundedCornerShape(12.dp))
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Nenhum documento pendente no momento.",
+                        color = secondaryTextColor,
+                        fontSize = 14.sp
+                    )
+                }
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.weight(1f, fill = false)
+                ) {
+                    items(pendingDocs) { doc ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .shadow(elevation = 8.dp, shape = RoundedCornerShape(16.dp))
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(brush = cardGradient)
+                                .border(width = 1.dp, color = cardBorderColor, shape = RoundedCornerShape(16.dp))
+                                .clickable {
+                                    isLocalSigned = true
+                                    onOpenDocumentToSign("doc_123")
+                                }
+                                .padding(16.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Default.PictureAsPdf,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(40.dp)
+                                )
+                                Spacer(modifier = Modifier.width(16.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(text = doc, fontWeight = FontWeight.Bold, color = mainTextColor)
+                                    Text(
+                                        text = stringResource(id = R.string.tap_to_open_sign),
+                                        color = MaterialTheme.colorScheme.primary,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                }
+                                Icon(
+                                    imageVector = Icons.Default.ChevronRight,
+                                    contentDescription = stringResource(id = R.string.open_action),
+                                    tint = secondaryTextColor
                                 )
                             }
-                            Icon(
-                                imageVector = Icons.Default.ChevronRight,
-                                contentDescription = stringResource(id = R.string.open_action),
-                                tint = secondaryTextColor
-                            )
                         }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
+            // 2. Visualizar Documentos Assinados e Concluídos
             Text(
                 text = stringResource(id = R.string.signed_documents_section),
                 fontSize = 18.sp,
@@ -148,7 +205,7 @@ fun SignerHomeScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.weight(1f)
             ) {
-                items(completedDocuments) { doc ->
+                items(completedDocs) { doc ->
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -162,16 +219,24 @@ fun SignerHomeScreen(
                             Icon(
                                 imageVector = Icons.Default.TaskAlt,
                                 contentDescription = stringResource(id = R.string.completed_action),
-                                tint = MaterialTheme.colorScheme.primary,
+                                tint = Color(0xFF2E7D32),
                                 modifier = Modifier.size(28.dp)
                             )
                             Spacer(modifier = Modifier.width(16.dp))
-                            Text(
-                                text = doc,
-                                color = mainTextColor,
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Medium
-                            )
+                            Column {
+                                Text(
+                                    text = doc,
+                                    color = mainTextColor,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "Status: Concluído / Assinado",
+                                    color = Color(0xFF2E7D32),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                         }
                     }
                 }
