@@ -14,6 +14,7 @@ import com.signum.app.data.local.entity.DocumentEntity
 import com.signum.app.data.local.entity.SignatureFieldEntity
 import com.signum.app.domain.model.DocumentStatus
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -53,7 +54,6 @@ class SignerViewModel(
         onComplete: () -> Unit
     ) {
         viewModelScope.launch {
-            isDemoDocSigned = true
             val activeName = signerName.ifBlank { loggedInSignerName }
             if (!signedSignerNames.contains(activeName)) {
                 signedSignerNames.add(activeName)
@@ -70,18 +70,34 @@ class SignerViewModel(
                 signaturePath = file.absolutePath
             }
 
+            // Update only the signature field belonging to the active signer
             val fields = signatureFieldDao.getFieldsForDocument(documentId)
             fields.forEach { field ->
-                val updatedField = field.copy(
-                    isSigned = true,
-                    signaturePath = signaturePath ?: field.signaturePath
-                )
-                signatureFieldDao.updateSignatureField(updatedField)
+                if (field.signerId == signerId || activeName.contains(field.signerId, ignoreCase = true)) {
+                    val updatedField = field.copy(
+                        isSigned = true,
+                        signaturePath = signaturePath ?: field.signaturePath
+                    )
+                    signatureFieldDao.updateSignatureField(updatedField)
+                }
             }
 
-            // Update status in Room DB
-            documentDao.updateDocumentStatus(documentId, DocumentStatus.SIGNED.name)
-            documentDao.updateDocumentStatus("doc_123", DocumentStatus.SIGNED.name)
+            // Check if ALL fields or demo signers (at least 2 signers) have signed
+            val allFields = signatureFieldDao.getFieldsForDocument(documentId)
+            val isAllSigned = (allFields.isNotEmpty() && allFields.all { it.isSigned }) || signedSignerNames.size >= 2
+            isDemoDocSigned = isAllSigned
+
+            val statusName = if (isAllSigned) DocumentStatus.SIGNED.name else DocumentStatus.PENDING_SIGNATURE.name
+            documentDao.updateDocumentStatus(documentId, statusName)
+            documentDao.updateDocumentStatus("doc_123", statusName)
+
+            if (isAllSigned) {
+                val allDocs = documentDao.getAllDocuments().firstOrNull() ?: emptyList()
+                allDocs.forEach { doc ->
+                    documentDao.updateDocumentStatus(doc.id, DocumentStatus.SIGNED.name)
+                }
+            }
+
             onComplete()
         }
     }
