@@ -33,6 +33,7 @@ import com.signum.app.data.local.entity.DocumentEntity
 fun SignerHomeScreen(
     documentsList: List<DocumentEntity> = emptyList(),
     isSignedState: Boolean = false,
+    signedSignerNames: List<String> = emptyList(),
     signerName: String = "Ana Aparecida Lisboa",
     onOpenDocumentToSign: (documentId: String) -> Unit,
     onLogout: () -> Unit = {}
@@ -40,29 +41,35 @@ fun SignerHomeScreen(
     val isDark = isSystemInDarkTheme()
 
     var isLocalSigned by remember { mutableStateOf(false) }
-    val isSigned = isSignedState || isLocalSigned
 
-    val pendingDocs = remember(documentsList, isSigned) {
+    // Evaluates specifically if THIS signed user has signed
+    val isUserSigned = remember(isSignedState, isLocalSigned, signedSignerNames, signerName) {
+        isLocalSigned || isSignedState || signedSignerNames.any {
+            it.contains(signerName, ignoreCase = true) || signerName.contains(it, ignoreCase = true)
+        }
+    }
+
+    val pendingDocs = remember(documentsList, isUserSigned) {
         if (documentsList.isNotEmpty()) {
             val list = documentsList.filter { it.status != "SIGNED" && it.status != "COMPLETED" }.map { it.title }
-            if (isSigned) list.filter { !it.contains("Pitch Deck", ignoreCase = true) } else list
-        } else if (!isSigned) {
+            if (isUserSigned) list.filter { !it.contains("Pitch Deck", ignoreCase = true) } else list
+        } else if (!isUserSigned) {
             listOf("Signum Pitch Deck")
         } else {
             emptyList()
         }
     }
 
-    val completedDocs = remember(documentsList, isSigned) {
+    val completedDocs = remember(documentsList, isUserSigned) {
         if (documentsList.isNotEmpty()) {
             val list = documentsList.filter { it.status == "SIGNED" || it.status == "COMPLETED" }.map { it.title }.toMutableList()
-            if (isSigned && list.none { it.contains("Pitch Deck", ignoreCase = true) }) {
+            if (isUserSigned && list.none { it.contains("Pitch Deck", ignoreCase = true) }) {
                 list.add(0, "Signum Pitch Deck (Assinado)")
             }
             if (list.isEmpty()) {
                 listOf("Termo_de_Confidencialidade.pdf", "Autorizacao_Uso_Imagem.pdf")
             } else list
-        } else if (isSigned) {
+        } else if (isUserSigned) {
             listOf(
                 "Signum Pitch Deck (Assinado)",
                 "Termo_de_Confidencialidade.pdf",
@@ -96,7 +103,7 @@ fun SignerHomeScreen(
                 title = {
                     Column {
                         Text(stringResource(id = R.string.signer_area_title), fontWeight = FontWeight.Bold)
-                        Text("Olá, $signerName!", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(id = R.string.greeting_user, signerName), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold)
                     }
                 },
                 actions = {
@@ -138,7 +145,7 @@ fun SignerHomeScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Nenhum documento pendente no momento.",
+                        text = stringResource(id = R.string.no_pending_documents),
                         color = secondaryTextColor,
                         fontSize = 14.sp
                     )
@@ -231,7 +238,7 @@ fun SignerHomeScreen(
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
-                                    text = "Status: Concluído / Assinado",
+                                    text = "Status: " + stringResource(id = R.string.status_completed_signed),
                                     color = Color(0xFF2E7D32),
                                     style = MaterialTheme.typography.bodySmall,
                                     fontWeight = FontWeight.Bold

@@ -16,8 +16,10 @@
     <string name="admin_recent_docs">Recent Documents</string>
     <string name="doc_contract">Service Contract</string>
     <string name="doc_nda">NDA Agreement</string>
-    <string name="status_pending">Pending</string>
+    <string name="status_pending">Pending Signature</string>
     <string name="status_completed">Completed</string>
+    <string name="no_recent_documents">No documents registered yet.</string>
+    <string name="delete_document_desc">Delete Document</string>
 
     <string name="register_signer_title">Register Signer</string>
     <string name="signer_data_section">Signer Information</string>
@@ -30,12 +32,14 @@
 
     <string name="signer_area_title">Signer Area</string>
     <string name="greeting_client">Hello, Client!</string>
+    <string name="greeting_user">Hello, %1$s!</string>
     <string name="logout_action">Logout</string>
     <string name="pending_signatures_section">Pending Signatures</string>
     <string name="tap_to_open_sign">Tap to open and sign</string>
     <string name="signed_documents_section">Signed Documents</string>
     <string name="open_action">Open</string>
     <string name="completed_action">Completed</string>
+    <string name="no_pending_documents">No pending documents at the moment.</string>
 
     <string name="sign_document_title">Sign Document</string>
     <string name="pdf_not_found">PDF not found on device.</string>
@@ -56,6 +60,10 @@
     <string name="role_witness">Witness</string>
     <string name="add_signer_button">+ Add Signer</string>
     <string name="pdf_preview_title">PDF Preview</string>
+    <string name="add_signer_dialog_title">Register Signer Credentials</string>
+    <string name="add_signer_dialog_confirm">Register</string>
+    <string name="add_signer_dialog_cancel">Cancel</string>
+    <string name="lgpd_consent_text">I authorize the processing of personal data according to LGPD (Law No. 13,709/2018).</string>
 
     <string name="place_signature_title">Position Signature</string>
     <string name="place_signature_instruction">Drag the block to the signature area on the document</string>
@@ -64,6 +72,7 @@
     <string name="review_and_send_doc">Review &amp; Send Document</string>
     <string name="page_indicator">Page 1 of 1</string>
     <string name="add_signature_field">+ Add Signature</string>
+    <string name="signature_fields_page_summary">• %1$d signature field(s) on Page %2$d</string>
 
     <string name="review_final_title">Final Review</string>
     <string name="review_shipping_summary">Submission Summary</string>
@@ -71,23 +80,32 @@
     <string name="review_document_name">selected_contract.pdf</string>
     <string name="review_signers_label">Signer(s):</string>
     <string name="review_signer_info">• John Smith (Client)</string>
+    <string name="review_fields_pages_label">Signature Fields and Pages:</string>
+    <string name="review_editable_tag">(Editable)</string>
     <string name="review_invite_message">Invitation Message</string>
     <string name="review_invite_text">Hello, please find attached the document for digital signature.</string>
     <string name="review_send_button">Send for Signature</string>
+    <string name="edit_action">Edit</string>
+    <string name="edit_title_dialog_title">Edit Document Title</string>
 
     <string name="tracking_title">Tracking</string>
     <string name="tracking_contract_title">Service Contract</string>
     <string name="tracking_general_status">General Status:</string>
-    <string name="tracking_status_waiting">WAITING FOR SIGNATURES</string>
     <string name="tracking_timeline">Timeline</string>
-    <string name="tracking_timeline_created">Today, 10:00 - Document Created</string>
-    <string name="tracking_timeline_sent">Today, 10:05 - Sent to John Smith</string>
-    <string name="tracking_timeline_pending">Pending - John Smith\'s Signature</string>
+    <string name="tracking_individual_status">Individual Signers Status</string>
+    <string name="open_completed_doc_button">Open Final Signed Document</string>
+    <string name="status_completed_signed">COMPLETED / SIGNED</string>
+    <string name="status_partially_signed">PARTIALLY SIGNED</string>
+    <string name="status_waiting_signatures">WAITING FOR SIGNATURES</string>
+    <string name="status_signed_at">Signed at </string>
+    <string name="status_waiting_signature">Awaiting signature</string>
 
-    <string name="timeline_step_created_title">Document Generated</string>
-    <string name="timeline_step_created_desc">Today, 10:00</string>
-    <string name="timeline_step_sent_title">Document Sent</string>
-    <string name="timeline_step_sent_desc">Today, 10:05 - Sent to John Smith</string>
-    <string name="timeline_step_pending_title">Awaiting Signature</string>
-    <string name="timeline_step_pending_desc">Pending - John Smith\'s Signature</string>
+    <string name="timeline_created_title">Document Created</string>
+    <string name="timeline_created_by">By Administrator</string>
+    <string name="timeline_invites_sent_title">Invitations Sent</string>
+    <string name="timeline_sent_to">Sent to </string>
+    <string name="timeline_signature_of">Signature of </string>
+    <string name="timeline_signed_successfully">Successfully completed</string>
+    <string name="timeline_pending_signatures">Awaiting Signature(s)</string>
+    <string name="timeline_pending_prefix">Pending - </string>
 </resources>

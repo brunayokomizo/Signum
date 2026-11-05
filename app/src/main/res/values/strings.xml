@@ -16,8 +16,10 @@
     <string name="admin_recent_docs">Documentos Recentes</string>
     <string name="doc_contract">Contrato de Prestação</string>
     <string name="doc_nda">Acordo NDA</string>
-    <string name="status_pending">Pendente</string>
+    <string name="status_pending">Pendente de Assinatura</string>
     <string name="status_completed">Concluído</string>
+    <string name="no_recent_documents">Nenhum documento cadastrado ainda.</string>
+    <string name="delete_document_desc">Excluir Documento</string>
 
     <string name="register_signer_title">Cadastrar Signatário</string>
     <string name="signer_data_section">Dados do Signatário</string>
@@ -30,12 +32,14 @@
 
     <string name="signer_area_title">Área do Signatário</string>
     <string name="greeting_client">Olá, Cliente!</string>
+    <string name="greeting_user">Olá, %1$s!</string>
     <string name="logout_action">Sair</string>
     <string name="pending_signatures_section">Pendentes de Assinatura</string>
     <string name="tap_to_open_sign">Toque para abrir e assinar</string>
     <string name="signed_documents_section">Documentos Assinados</string>
     <string name="open_action">Abrir</string>
     <string name="completed_action">Concluído</string>
+    <string name="no_pending_documents">Nenhum documento pendente no momento.</string>
 
     <string name="sign_document_title">Assinar Documento</string>
     <string name="pdf_not_found">PDF não encontrado no dispositivo.</string>
@@ -56,6 +60,10 @@
     <string name="role_witness">Testemunha</string>
     <string name="add_signer_button">+ Adicionar Signatário</string>
     <string name="pdf_preview_title">Visualização do PDF</string>
+    <string name="add_signer_dialog_title">Cadastrar Credenciais do Signatário</string>
+    <string name="add_signer_dialog_confirm">Cadastrar</string>
+    <string name="add_signer_dialog_cancel">Cancelar</string>
+    <string name="lgpd_consent_text">Autorizo o tratamento de dados pessoais conforme a LGPD (Lei nº 13.709/2018).</string>
 
     <string name="place_signature_title">Posicionar Assinatura</string>
     <string name="place_signature_instruction">Arraste o bloco para o local de assinatura no documento</string>
@@ -64,6 +72,7 @@
     <string name="review_and_send_doc">Revisar e Enviar Documento</string>
     <string name="page_indicator">Página 1 de 1</string>
     <string name="add_signature_field">+ Adicionar Assinatura</string>
+    <string name="signature_fields_page_summary">• %1$d campo(s) de assinatura na Página %2$d</string>
 
     <string name="review_final_title">Revisão Final</string>
     <string name="review_shipping_summary">Resumo do Envio</string>
@@ -71,23 +80,32 @@
     <string name="review_document_name">contrato_selecionado.pdf</string>
     <string name="review_signers_label">Signatário(s):</string>
     <string name="review_signer_info">• João Silva (Contratante)</string>
+    <string name="review_fields_pages_label">Campos e Páginas de Assinatura:</string>
+    <string name="review_editable_tag">(Editável)</string>
     <string name="review_invite_message">Mensagem de Convite</string>
     <string name="review_invite_text">Olá, segue o documento para assinatura digital.</string>
     <string name="review_send_button">Disparar para Assinatura</string>
+    <string name="edit_action">Alterar</string>
+    <string name="edit_title_dialog_title">Alterar Nome do Documento</string>
 
     <string name="tracking_title">Acompanhamento</string>
     <string name="tracking_contract_title">Contrato de Prestação</string>
     <string name="tracking_general_status">Status Geral:</string>
-    <string name="tracking_status_waiting">A AGUARDAR ASSINATURAS</string>
     <string name="tracking_timeline">Linha do Tempo</string>
-    <string name="tracking_timeline_created">Hoje, 10:00 - Documento Criado</string>
-    <string name="tracking_timeline_sent">Hoje, 10:05 - Enviado para João Silva</string>
-    <string name="tracking_timeline_pending">Pendente - Assinatura de João Silva</string>
+    <string name="tracking_individual_status">Status Individual dos Signatários</string>
+    <string name="open_completed_doc_button">Abrir Documento Final Concluído</string>
+    <string name="status_completed_signed">CONCLUÍDO / ASSINADO</string>
+    <string name="status_partially_signed">PARCIALMENTE ASSINADO</string>
+    <string name="status_waiting_signatures">A AGUARDAR ASSINATURAS</string>
+    <string name="status_signed_at">Assinado em </string>
+    <string name="status_waiting_signature">Aguardando assinatura</string>
 
-    <string name="timeline_step_created_title">Documento Gerado</string>
-    <string name="timeline_step_created_desc">Hoje, 10:00</string>
-    <string name="timeline_step_sent_title">Documento Enviado</string>
-    <string name="timeline_step_sent_desc">Hoje, 10:05 - Enviado para João Silva</string>
-    <string name="timeline_step_pending_title">Aguardando Assinatura</string>
-    <string name="timeline_step_pending_desc">Pendente - Assinatura de João Silva</string>
+    <string name="timeline_created_title">Documento Criado</string>
+    <string name="timeline_created_by">Por Administrador</string>
+    <string name="timeline_invites_sent_title">Convites Enviados</string>
+    <string name="timeline_sent_to">Enviado para </string>
+    <string name="timeline_signature_of">Assinatura de </string>
+    <string name="timeline_signed_successfully">Concluído com sucesso</string>
+    <string name="timeline_pending_signatures">Aguardando Assinatura(s)</string>
+    <string name="timeline_pending_prefix">Pendente - </string>
 </resources>

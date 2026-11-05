@@ -73,6 +73,9 @@ fun SignumNavGraph(
             val recentDocs by adminViewModel.getAdminDocuments().collectAsState(initial = emptyList())
             AdminHomeScreen(
                 recentDocuments = recentDocs,
+                isDemoSigned = signerViewModel.isDemoDocSigned,
+                signedSignerNames = signerViewModel.signedSignerNames.toList(),
+                currentSignersList = adminViewModel.currentSignersList.toList(),
                 onAddNewDocumentClick = {
                     adminViewModel.resetDraftFlow()
                     signerViewModel.isDemoDocSigned = false
@@ -147,6 +150,15 @@ fun SignumNavGraph(
                 contractName = adminViewModel.currentDocumentTitle,
                 signersInfo = adminViewModel.currentSignersInfo,
                 signaturePagesInfo = adminViewModel.currentSignaturePagesInfo,
+                onUpdateContractName = { newTitle ->
+                    adminViewModel.currentDocumentTitle = newTitle
+                },
+                onEditSignersClick = {
+                    navController.navigate("documentSetup")
+                },
+                onEditPlacementClick = {
+                    navController.navigate("signaturePlacement")
+                },
                 onConfirmAndSend = { inviteMessage ->
                     adminViewModel.saveDocumentFlow(
                         context = context,
@@ -183,6 +195,7 @@ fun SignumNavGraph(
             SignerHomeScreen(
                 documentsList = allSignerDocs,
                 isSignedState = signerViewModel.isDemoDocSigned,
+                signedSignerNames = signerViewModel.signedSignerNames.toList(),
                 signerName = signerViewModel.loggedInSignerName,
                 onOpenDocumentToSign = {
                     navController.navigate("signingScreen")

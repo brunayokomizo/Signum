@@ -56,6 +56,13 @@ class AdminViewModel(
         }
     }
 
+    fun deleteSigner(signerId: String, onComplete: () -> Unit = {}) {
+        viewModelScope.launch {
+            userDao.deleteUser(signerId)
+            onComplete()
+        }
+    }
+
     fun registerOrUpdateSigner(
         id: String? = null,
         fullName: String,

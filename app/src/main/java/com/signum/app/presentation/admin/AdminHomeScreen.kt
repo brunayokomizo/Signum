@@ -39,6 +39,9 @@ import java.util.Locale
 @Composable
 fun AdminHomeScreen(
     recentDocuments: List<DocumentEntity> = emptyList(),
+    isDemoSigned: Boolean = false,
+    signedSignerNames: List<String> = emptyList(),
+    currentSignersList: List<SignerAssignmentUI> = emptyList(),
     onAddNewDocumentClick: () -> Unit,
     onRegisterSignerClick: () -> Unit,
     onDocumentClick: (docId: String, title: String) -> Unit = { _, _ -> },
@@ -194,7 +197,7 @@ fun AdminHomeScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Nenhum documento cadastrado ainda.",
+                        text = stringResource(id = R.string.no_recent_documents),
                         color = headerTextColor.copy(alpha = 0.7f),
                         fontSize = 14.sp
                     )
@@ -204,6 +207,13 @@ fun AdminHomeScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(recentDocuments) { doc ->
+                        val isDocCompleted = doc.status == "COMPLETED" || doc.status == "SIGNED" ||
+                                (isDemoSigned) ||
+                                (currentSignersList.isNotEmpty() && currentSignersList.all { signer ->
+                                    signedSignerNames.any { signed -> signed.contains(signer.name, ignoreCase = true) || signer.name.contains(signed, ignoreCase = true) }
+                                }) ||
+                                (signedSignerNames.size >= 2)
+
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -238,8 +248,8 @@ fun AdminHomeScreen(
                                         )
                                         Spacer(modifier = Modifier.height(2.dp))
                                         Text(
-                                            text = if (doc.status == "COMPLETED" || doc.status == "SIGNED") "Status: Concluído" else "Status: Pendente de Assinatura",
-                                            color = if (doc.status == "COMPLETED" || doc.status == "SIGNED") Color(0xFF2E7D32) else MaterialTheme.colorScheme.error,
+                                            text = if (isDocCompleted) "Status: " + stringResource(id = R.string.status_completed) else "Status: " + stringResource(id = R.string.status_pending),
+                                            color = if (isDocCompleted) Color(0xFF2E7D32) else MaterialTheme.colorScheme.error,
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 12.sp
                                         )
@@ -257,7 +267,7 @@ fun AdminHomeScreen(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Delete,
-                                        contentDescription = "Excluir Documento",
+                                        contentDescription = stringResource(id = R.string.delete_document_desc),
                                         tint = MaterialTheme.colorScheme.error
                                     )
                                 }
