@@ -39,7 +39,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignerRegistrationScreen(
-    onSaveClick: () -> Unit
+    onSaveClick: () -> Unit,
+    onSaveSigner: (name: String, email: String, phone: String, pass: String) -> Unit = { _, _, _, _ -> }
 ) {
     val context = LocalContext.current
     val isDark = isSystemInDarkTheme()
@@ -211,7 +212,8 @@ fun SignerRegistrationScreen(
                             }
                             isLoading = true
                             scope.launch {
-                                delay(1200)
+                                onSaveSigner(name, email, phone, password)
+                                delay(600)
                                 isLoading = false
                                 Toast.makeText(context, signerSavedMsg, Toast.LENGTH_SHORT).show()
                                 onSaveClick()
